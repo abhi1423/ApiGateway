@@ -1,0 +1,30 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: ApiGateway
+
+  cloud:
+    gateway:
+      routes:
+
+        - id: consumer-service
+          uri: lb://CONSUMER-SERVICES
+          predicates:
+            - Path=/consumer/**
+
+        - id: login-service
+          uri: lb://CONSUMER-SERVICES
+          predicates:
+            - Path=/login/**
+
+        - id: transporter-service
+          uri: lb://FLEET-HUB
+          predicates:
+            - Path=/transporter/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
