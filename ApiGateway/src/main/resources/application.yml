@@ -13,6 +13,11 @@ spring:
           uri: lb://CONSUMER-SERVICES
           predicates:
             - Path=/consumer/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: consumerCircuitBreaker
+                fallbackUri: forward:/fallback/consumer
 
         - id: login-service
           uri: lb://CONSUMER-SERVICES
@@ -23,8 +28,22 @@ spring:
           uri: lb://FLEET-HUB
           predicates:
             - Path=/transporter/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: transporterCircuitBreaker
+                fallbackUri: forward:/fallback/transporter
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      transporterCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+
+      consumerCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
